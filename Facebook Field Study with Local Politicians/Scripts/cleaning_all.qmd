@@ -1,0 +1,1055 @@
+---
+title: "Preprocessing"
+format: html
+---
+
+# Setup
+
+```{r}
+library(tidyverse)
+library(jsonlite)
+library(data.table)
+library(dplyr)
+library(tidyr)
+library(here)
+```
+
+
+# Load in data
+
+```{r, warning=FALSE}
+
+#Load in the files
+files <- list.files(path="/Users/idahelenedencker/Desktop/STANDBY/Facebook Field Study with Local Politicians/Facebook_Field_2023-kopi/data/preprocessed/second_round_json", pattern="*.json", full.names=TRUE, recursive=FALSE)
+
+# Initialize an empty data frame to hold the combined data
+data_frame_all <- NULL  
+# Initialize an ID counter
+id_counter <- 1
+
+# for-loop going through each element in files
+for(i in 1:length(files)) { 
+  # Read in json file as list
+  list <- jsonlite::fromJSON(here::here(txt=files[i]))
+  
+  # Replace empty strings in 'text' field with NA
+  if ("" %in% list$text) {
+    list$text[list$text == ""] <- NA
+  }
+  
+  # Check if hasMedia is true and mediaText is NULL
+  if (list$hasMedia && is.null(list$mediaText)) {
+    list$mediaText <- NA
+  }
+  
+  # Make a new list making everything in 'list' into dataframes
+  new_list <- lapply(list, as.data.frame.list)
+  # Takes the list of data frames new_list, combines them row-wise, fill with NA, and make a dataframe
+  data_frame <- rbindlist(new_list, fill=TRUE) %>% 
+    as.data.frame()
+  
+   # Check if columns 5 and 6 exist, if not, create them and fill with NA
+  if (!("reactions" %in% colnames(data_frame))) {
+    data_frame$reactions <- NA
+  }
+  if (!("comments" %in% colnames(data_frame))) {
+    data_frame$comments <- NA
+  }
+  
+  # Rename the first 6 columns
+  colnames(data_frame)[1:6] <- c("Column1", "Column2", "Column3", "Column4", "Column5", "Column6")
+  # Add an ID column
+  data_frame$ID <- id_counter
+  # Increment ID counter for the next data frame
+  id_counter <- id_counter + 1
+  #Add file_name column
+  data_frame$file_name <- files[i]
+  # Combine into dataframe
+  data_frame_all <- rbindlist(list(data_frame, data_frame_all), fill = TRUE)
+}
+
+
+```
+
+
+```{r}
+# Check the encoding of each column in the data frame
+encodings <- sapply(data_frame_all, function(x) Encoding(as.character(x)))
+
+# Print the encodings
+print(encodings)
+```
+
+
+
+# Preprocessing based on the 'data_frame_all'
+
+```{r}
+#Fixing Column5 and Column6 for the ID's where Column4 (HasMedia) == FALSE i.e. transferring reactions and counts to their correct places:
+
+#make sure column4 is Boolean
+# Convert NA values to "NA"
+data_frame_all$Column4[is.na(data_frame_all$Column4)] <- "NA"
+
+# Convert column to logical
+data_frame_all$Column4 <- as.logical(data_frame_all$Column4)
+
+
+# Loop through each unique ID in the dataframe
+for (id_value in unique(data_frame_all$ID)) {
+  # Subset the dataframe for the current ID
+  subset_idx <- which(data_frame_all$ID == id_value)
+  subset_df <- data_frame_all[subset_idx, ]
+  
+  # Check if the 4th cell in the 'Column4' column is FALSE
+  if (subset_df[4, "Column4"] == FALSE) {
+    # Save the values of the 5th cell in 'Column5' and 'Column6'
+    cell_value_1 <- subset_df[5, "Column5"]
+    cell_value_2 <- subset_df[5, "Column6"]
+    
+    # Set the original cells to NA
+    subset_df[5, c("Column5", "Column6")] <- NA
+    
+    # Place the saved values in the 'type' and 'count' columns
+    subset_df[5, "type"] <- cell_value_1
+    subset_df[5, "count"] <- cell_value_2
+    
+    # Check if a 6th row exists and it's not NA
+    if (!is.na(subset_df[6, "Column5"]) && !is.na(subset_df[6, "Column6"])) {
+      # Save the values of the 6th cell in 'Column5' and 'Column6'
+      cell_value_3 <- subset_df[6, "Column5"]
+      cell_value_4 <- subset_df[6, "Column6"]
+      
+      # Set the original cells to NA
+      subset_df[6, c("Column5", "Column6")] <- NA
+      
+      # Place the saved values in the 'type' and 'count' columns
+      subset_df[6, "type"] <- cell_value_3
+      subset_df[6, "count"] <- cell_value_4
+    }
+    
+    # Check if a 7th row exists and it's not NA
+    if (!is.na(subset_df[7, "Column5"]) && !is.na(subset_df[7, "Column6"])) {
+      # Save the values of the 7th cell in 'Column5' and 'Column6'
+      cell_value_5 <- subset_df[7, "Column5"]
+      cell_value_6 <- subset_df[7, "Column6"]
+      
+      # Set the original cells to NA
+      subset_df[7, c("Column5", "Column6")] <- NA
+      
+      # Place the saved values in the 'type' and 'count' columns
+      subset_df[7, "type"] <- cell_value_5
+      subset_df[7, "count"] <- cell_value_6
+    }
+    
+    # Check if a 8th row exists and it's not NA
+    if (!is.na(subset_df[8, "Column5"]) && !is.na(subset_df[8, "Column6"])) {
+      # Save the values of the 8th cell in 'Column5' and 'Column6'
+      cell_value_7 <- subset_df[8, "Column5"]
+      cell_value_8 <- subset_df[8, "Column6"]
+      
+      # Set the original cells to NA
+      subset_df[8, c("Column5", "Column6")] <- NA
+      
+      # Place the saved values in the 'type' and 'count' columns
+      subset_df[8, "type"] <- cell_value_7
+      subset_df[8, "count"] <- cell_value_8
+    }
+    
+    # Check if a 9th row exists and it's not NA
+    if (!is.na(subset_df[9, "Column5"]) && !is.na(subset_df[9, "Column6"])) {
+      # Save the values of the 9th cell in 'Column5' and 'Column6'
+      cell_value_9 <- subset_df[9, "Column5"]
+      cell_value_10 <- subset_df[9, "Column6"]
+      
+      # Set the original cells to NA
+      subset_df[9, c("Column5", "Column6")] <- NA
+      
+      # Place the saved values in the 'type' and 'count' columns
+      subset_df[9, "type"] <- cell_value_9
+      subset_df[9, "count"] <- cell_value_10
+    }
+    
+    # Check if a 10th row exists and it's not NA
+    if (!is.na(subset_df[10, "Column5"]) && !is.na(subset_df[10, "Column6"])) {
+      # Save the values of the 10th cell in 'Column5' and 'Column6'
+      cell_value_11 <- subset_df[10, "Column5"]
+      cell_value_12 <- subset_df[10, "Column6"]
+      
+      # Set the original cells to NA
+      subset_df[10, c("Column5", "Column6")] <- NA
+      
+      # Place the saved values in the 'type' and 'count' columns
+      subset_df[10, "type"] <- cell_value_11
+      subset_df[10, "count"] <- cell_value_12
+    }
+    
+    # Check if a 11th row exists and it's not NA
+    if (!is.na(subset_df[11, "Column5"]) && !is.na(subset_df[11, "Column6"])) {
+      # Save the values of the 11th cell in 'Column5' and 'Column6'
+      cell_value_13 <- subset_df[11, "Column5"]
+      cell_value_14 <- subset_df[11, "Column6"]
+      
+      # Set the original cells to NA
+      subset_df[11, c("Column5", "Column6")] <- NA
+      
+      # Place the saved values in the 'type' and 'count' columns
+      subset_df[11, "type"] <- cell_value_13
+      subset_df[11, "count"] <- cell_value_14
+    }
+
+    # Update the original dataframe with the modified subset
+    data_frame_all[subset_idx, ] <- subset_df
+  }
+} 
+```
+
+
+```{r}
+#Creating total_n_comments
+data_frame_all <- data_frame_all %>%
+  group_by(ID) %>%
+  mutate(total_n_comments = sum(!is.na(timeLabel))) %>%
+  ungroup()  # Ungroup the data
+
+#creating has_comments 
+for (i in 1:nrow(data_frame_all)) {
+  if (data_frame_all$total_n_comments[i] < 1)
+    data_frame_all$has_comments[i] <- 0
+  else
+    data_frame_all$has_comments[i] <- 1
+}
+
+#Creating n_total_reactions_post
+data_frame_all <- data_frame_all %>%
+  group_by(ID) %>%
+  mutate(count= as.numeric(count)) %>%
+  mutate(n_total_reactions_post = sum(count,na.rm=TRUE)) %>%
+  ungroup()  # Ungroup the data
+
+
+```
+
+
+
+```{r}
+#making count columns for reactions on posts
+
+#Make new columns to be filled
+data_frame_all$count_like_pos	<- NA
+data_frame_all$count_heart_pos <- NA	
+data_frame_all$count_haha_pos <- NA
+data_frame_all$count_care_pos <- NA
+data_frame_all$count_angry_pos <- NA
+data_frame_all$count_sad_pos <- NA
+data_frame_all$count_wow_pos <- NA
+
+#fill columns based on conditions
+for (id_value in unique(data_frame_all$ID)) {
+  # Subset the dataframe for the current ID
+  subset_idx <- which(data_frame_all$ID == id_value)
+  subset_df <- data_frame_all[subset_idx, ]
+  
+  # Check if the word 'like' exists in the column 'type'
+  if ("like" %in% subset_df$type) {
+    # Find the index of the cell containing 'like'
+    like_index <- which(subset_df$type == "like")
+    # Get the value to the right of the cell containing 'like'
+    like_variable <- subset_df$count[like_index] 
+    # Place the saved values in the first row of the count_like_pos column
+    subset_df$count_like_pos[1] <- like_variable
+  }
+  if ("heart" %in% subset_df$type) {
+    heart_index <- which(subset_df$type == "heart")
+    heart_variable <- subset_df$count[heart_index] 
+    subset_df$count_heart_pos[1] <- heart_variable
+  }
+  if ("haha" %in% subset_df$type) {
+    haha_index <- which(subset_df$type == "haha")
+    haha_variable <- subset_df$count[haha_index] 
+    subset_df$count_haha_pos[1] <- haha_variable
+  }
+  if ("care" %in% subset_df$type) {
+    care_index <- which(subset_df$type == "care")
+    care_variable <- subset_df$count[care_index] 
+    subset_df$count_care_pos[1] <- care_variable
+  }
+  if ("angry" %in% subset_df$type) {
+    angry_index <- which(subset_df$type == "angry")
+    angry_variable <- subset_df$count[angry_index] 
+    subset_df$count_angry_pos[1] <- angry_variable
+  }
+  if ("sad" %in% subset_df$type) {
+    sad_index <- which(subset_df$type == "sad")
+    sad_variable <- subset_df$count[sad_index] 
+    subset_df$count_sad_pos[1] <- sad_variable
+  }
+  if ("wow" %in% subset_df$type) {
+    wow_index <- which(subset_df$type == "wow")
+    wow_variable <- subset_df$count[wow_index] 
+    subset_df$count_wow_pos[1] <- wow_variable
+  }
+  
+  # Update the original dataframe with the modified subset
+  data_frame_all[subset_idx, ] <- subset_df
+}
+```
+
+
+
+```{r}
+#shorten the file_name column 
+data_frame_all$file_name <- sub("/Users/idahelenedencker/Desktop/STANDBY/Facebook Field Study with Local Politicians/Facebook_Field_2023-kopi/data/preprocessed/second_round_json/", "" , data_frame_all$file_name)
+
+
+## Based on the file_name column make:
+
+#name_abbreviation
+for (row in 1:nrow(data_frame_all)) {
+  data_frame_all$name_abbreviation[row] <- substr(data_frame_all$file_name[row], 1, 4)
+}
+
+#date_post
+for (row in 1:nrow(data_frame_all)) {
+  data_frame_all$date_post[row] <- substr(data_frame_all$file_name[row], 7, 10)
+}
+
+#offentlig_privat
+for (row in 1:nrow(data_frame_all)) {
+  data_frame_all$offentlig_privat[row] <- substr(data_frame_all$file_name[row], 5,5)
+}
+
+#n_post_day
+for (row in 1:nrow(data_frame_all)) {
+  data_frame_all$n_post_day[row] <- substr(data_frame_all$file_name[row], 12,12)
+}
+
+```
+
+
+```{r}
+#making count columns for reactions on comments
+
+data_frame_all$count_like_com	<- NA
+data_frame_all$count_heart_com <- NA	
+data_frame_all$count_haha_com <- NA
+data_frame_all$count_care_com <- NA
+data_frame_all$count_angry_com <- NA
+data_frame_all$count_sad_com <- NA
+data_frame_all$count_wow_com <- NA
+
+#make 'reactions.type' as character
+data_frame_all <- data_frame_all %>%
+  mutate(reactions.types= as.character(reactions.types)) 
+# first sub NULL , character(0) , list() with NAs
+data_frame_all$reactions.types <- sub("NULL", NA, data_frame_all$reactions.types)
+data_frame_all$reactions.types <- sub("list()", NA, data_frame_all$reactions.types)
+data_frame_all$reactions.types[data_frame_all$reactions.types == "character(0)"] <- NA
+#replace all 0's in reactions.totalCount with NA
+data_frame_all$reactions.totalCount[data_frame_all$reactions.totalCount == 0] <- NA
+
+
+#fill columns based on conditions:
+
+# For-looping through each row in the subset_df 
+for (id_value in unique(data_frame_all$ID)) {
+  
+  # Subset the dataframe for the current ID
+  subset_idx <- which(data_frame_all$ID == id_value)
+  subset_df <- data_frame_all[subset_idx, ]
+  
+  # For-looping through each row in the subset_df 
+  for (i in 1:nrow(subset_df)) {
+  
+    # Check if the row contains the word 'like' in the character column 'reactions.types'
+    if ("like" %in% subset_df$reactions.types[i]) {
+      
+      # Convert the value to character and then find the numeric value to the left of that column
+      # Assuming the numeric value is separated by a space
+      like_count <- as.numeric(strsplit(as.character(subset_df$reactions.totalCount[i]), " ")[[1]][1])
+      
+      # Place that numeric value in column 'count_like_com' for that row
+      subset_df$count_like_com[i] <- like_count
+    }
+    if ("heart" %in% subset_df$reactions.types[i]) {
+      heart_count <- as.numeric(strsplit(as.character(subset_df$reactions.totalCount[i]), " ")[[1]][1])
+      subset_df$count_heart_com[i] <- heart_count
+    }
+    if ("haha" %in% subset_df$reactions.types[i]) {
+      haha_count <- as.numeric(strsplit(as.character(subset_df$reactions.totalCount[i]), " ")[[1]][1])
+      subset_df$count_haha_com[i] <- haha_count
+    }
+    if ("care" %in% subset_df$reactions.types[i]) {
+      care_count <- as.numeric(strsplit(as.character(subset_df$reactions.totalCount[i]), " ")[[1]][1])
+      subset_df$count_care_com[i] <- care_count
+    }
+    if ("angry" %in% subset_df$reactions.types[i]) {
+      angry_count <- as.numeric(strsplit(as.character(subset_df$reactions.totalCount[i]), " ")[[1]][1])
+      subset_df$count_angry_com[i] <- angry_count
+    }
+    if ("sad" %in% subset_df$reactions.types[i]) {
+      sad_count <- as.numeric(strsplit(as.character(subset_df$reactions.totalCount[i]), " ")[[1]][1])
+      subset_df$count_sad_com[i] <- sad_count
+    }
+    if ("wow" %in% subset_df$reactions.types[i]) {
+      wow_count <- as.numeric(strsplit(as.character(subset_df$reactions.totalCount[i]), " ")[[1]][1])
+      subset_df$count_wow_com[i] <- wow_count
+    }
+  }
+  
+  # Update the original dataframe with the modified subset
+  data_frame_all[subset_idx, ] <- subset_df
+  
+}
+
+```
+
+
+
+```{r}
+#Make n_total_reactions_com
+data_frame_all$n_total_reactions_com <- NA
+
+
+# For-looping through each row in the subset_df 
+for (id_value in unique(data_frame_all$ID)) {
+  
+  # Subset the dataframe for the current ID
+  subset_idx <- which(data_frame_all$ID == id_value)
+  subset_df <- data_frame_all[subset_idx, ]
+  
+  # For-looping through each row in the subset_df 
+  for (i in 1:nrow(subset_df)) {
+    
+    # Fill 'n_total_reactions_com' for that row with the sum of column 38-44 (if a cell is NA, treat it as a 0)
+    subset_df$n_total_reactions_com[i] <- sum(subset_df[i, 38:44], na.rm = TRUE)
+    
+  }
+  
+  # Update the original dataframe with the modified subset
+  data_frame_all[subset_idx, ] <- subset_df
+  
+}
+
+
+```
+
+
+```{r}
+#fix structure of column 1-6 moving information to the top 
+
+# For-looping through each ID in data_frame_all
+for (id_value in unique(data_frame_all$ID)) {
+  
+  # Subset the dataframe for the current ID
+  subset_idx <- which(data_frame_all$ID == id_value)
+  subset_df <- data_frame_all[subset_idx, ]
+  
+  # Move info in row 2 in column2 to the first row
+  subset_df[1, 2] <- subset_df[2, 2]
+  subset_df[2, 2] <- NA
+  
+  # Move info in row 3 in column3 to the first row
+  subset_df[1, 3] <- subset_df[3, 3]
+  subset_df[3, 3] <- NA
+  
+  # Move info in row 4 in column4 to the first row
+  subset_df[1, 4] <- subset_df[4, 4]
+  subset_df[4, 4] <- NA
+  
+  #if row 1 in column4 is ==TRUE
+  if (subset_df[1, 4] == TRUE) {
+    #move info in row 5 in column5 to the first row and fill old one with NA
+    subset_df[1, 5] <- subset_df[5, 5]
+    subset_df[5, 5] <- NA
+    #move info in row 6 in column6 to the first row
+    subset_df[1, 6] <- subset_df[6, 6]
+    subset_df[6, 6] <- NA
+    }
+  
+  # Update the original dataframe with the modified subset
+  data_frame_all[subset_idx, ] <- subset_df
+  
+}
+```
+
+
+
+
+```{r}
+#delete rows depending on whether column4== TRUE or FALSE
+#if TRUE the following 5 rows are deleted
+#if FALSE the following 3 rows are deleted
+
+# Initialize empty list to store indices to remove
+indices_to_remove <- c()
+
+for (row in 1:nrow(data_frame_all)) {
+  if (is.na(data_frame_all[row, "Column4"])) {
+    # Do nothing for NA values
+  } else if (data_frame_all[row, "Column4"] == TRUE) {
+    # Add the following 5 rows to the list of indices to remove
+    indices_to_remove <- c(indices_to_remove, (row+1):(row+5))
+  } else if (data_frame_all[row, "Column4"] == FALSE) {
+    # Add the following 3 rows to the list of indices to remove
+    indices_to_remove <- c(indices_to_remove, (row+1):(row+3))
+  }
+}
+
+# Remove rows from the data frame
+data_frame_all <- data_frame_all[-indices_to_remove, ]
+
+#if the column 'type' contains anything else than NA, delete that row 
+target_strings <- c("like", "heart", "wow", "sad", "care", "angry", "haha")
+data_frame_all <- data_frame_all[!grepl(paste(target_strings, collapse = "|"), data_frame_all$type), ]
+  
+
+```
+
+
+
+```{r}
+#merging
+
+#preprocesing n_total_reactions_com before merging
+data_frame_all$n_total_reactions_com[data_frame_all$n_total_reactions_com == 0] <- NA
+
+#preprocesing n_total_reactions_post before merging
+for (id_value in unique(data_frame_all$ID)) {
+  
+  # Subset the dataframe for the current ID
+  subset_idx <- which(data_frame_all$ID == id_value)
+  subset_df <- data_frame_all[subset_idx, ]
+  
+  # in the column 'n_total_reactions_post' keep the value in the first row
+  subset_df$n_total_reactions_post[-1] <- NA
+  
+  # Update the original dataframe with the modified subset
+  data_frame_all[subset_idx, ] <- subset_df
+  
+}
+
+#Pipe for merging, renaming, deleting and replacing NA's
+data_frame_all <- data_frame_all %>%
+  #merging:
+  mutate(
+    authorName = coalesce(Column1, authorName),
+    authorId = coalesce(Column2, authorId),
+    text = coalesce(Column3, text),
+    hasMedia = coalesce(Column4,hasMedia),
+    mediaUrl = coalesce(Column5, mediaUrl),
+    count_like = coalesce(count_like_pos, count_like_com),
+    count_heart = coalesce(count_heart_pos, count_heart_com),
+    count_haha= coalesce(count_haha_pos, count_haha_com), 
+    count_care = coalesce(count_care_pos, count_care_com),
+    count_angry = coalesce(count_angry_pos, count_angry_com),
+    count_sad = coalesce(count_sad_pos, count_sad_com),
+    count_wow = coalesce(count_wow_pos, count_wow_com),
+    n_total_reactions = coalesce(n_total_reactions_post, n_total_reactions_com)) %>%
+  #rename Column6
+  rename(mediaText = Column6) %>% 
+  #delete columns
+  select(-Column1, -Column2, -Column3, -Column4, -Column5, 
+         -type, -count, -reactions.totalCount, -reactions.types,
+         -n_total_reactions_post, -count_like_pos, -count_heart_pos,
+         -count_haha_pos, -count_care_pos, -count_angry_pos, -count_sad_pos,
+         -count_wow_pos, -count_like_com, -count_heart_com, -count_haha_com,
+         -count_care_com, -count_angry_com, -count_sad_com, -count_wow_com,
+         -n_total_reactions_com, -reactions, -comments)%>%
+  #in all the count_ columns replace NA with 0 
+  mutate(across(starts_with("count"), ~replace_na(., 0)))
+
+#in n_total_reactions replace NA with 0 
+data_frame_all$n_total_reactions[is.na(data_frame_all$n_total_reactions)] <- 0
+
+
+```
+
+
+
+```{r}
+#make main_post column
+
+data_frame_all$main_post <- NA
+
+for (id_value in unique(data_frame_all$ID)) {
+  # Subset the dataframe for the current ID
+  subset_idx <- which(data_frame_all$ID == id_value)
+  subset_df <- data_frame_all[subset_idx, ]
+  
+  # in the column 'main_post' fill in the first row with 1, and the remaining rows with 0
+  subset_df$main_post <- ifelse(seq_along(subset_df$main_post) == 1, 1, 0)
+  
+  # Update the original dataframe with the modified subset
+  data_frame_all[subset_idx, ] <- subset_df
+}
+
+
+```
+
+
+#Make weeks:
+Week 1: monday 0105 to 0705
+
+Week 2: 0805 to 1405
+
+Week 3: 1505 to 2105
+
+Week 4: 2205 to 2805
+
+Week 5: 2905 to 0406
+
+Week 6: 0506 to 1106
+
+Week 7: 1206 to 1806
+
+Week 8: 1906 to 2506
+
+(Week 9: 2606 to 0207)
+
+
+
+
+```{r}
+#make week column 
+
+# Create an empty data frame to hold rows assigned to week 9 (for checking)
+week_9_df <- data.frame(row_index = integer(), date_post = character())
+
+for (row in 1:nrow(data_frame_all)) {
+  date_post <- as.character(data_frame_all$date_post[row])
+  first_two_digits <- as.numeric(substr(date_post, 1, 2))
+  last_digit <- as.numeric(substr(date_post, nchar(date_post), nchar(date_post)))
+  
+  if ((first_two_digits >= 1 & first_two_digits <= 7) & last_digit == 5) {
+    data_frame_all$week[row] <- 1
+    
+  } else if ((first_two_digits >= 8 & first_two_digits <= 14) & last_digit == 5) {
+    data_frame_all$week[row] <- 2
+    
+  } else if ((first_two_digits >= 15 & first_two_digits <= 21) & last_digit == 5) {
+    data_frame_all$week[row] <- 3
+    
+  } else if ((first_two_digits >= 22 & first_two_digits <= 28) & last_digit == 5) {
+    data_frame_all$week[row] <- 4
+    
+  } else if (((first_two_digits >= 29 & first_two_digits <= 31) & (last_digit == 5)) |
+      ((first_two_digits >= 1 & first_two_digits <= 4) & (last_digit == 6))) {
+    data_frame_all$week[row] <- 5
+    
+  } else if ((first_two_digits >= 5 & first_two_digits <= 11) & last_digit == 6) {
+    data_frame_all$week[row] <- 6
+    
+  } else if ((first_two_digits >= 12 & first_two_digits <= 18) & last_digit == 6) {
+    data_frame_all$week[row] <- 7
+    
+  } else if ((first_two_digits >= 19 & first_two_digits <= 25) & last_digit == 6) {
+    data_frame_all$week[row] <- 8
+    
+  } else if (((first_two_digits >= 26 & first_two_digits <= 31) & (last_digit == 6)) | ((first_two_digits >= 1 & first_two_digits <= 2) & (last_digit == 7))) {
+    data_frame_all$week[row] <- 9
+    
+    #to check: 
+    week_9_df <- rbind(week_9_df, data.frame(row_index = row, date_post = date_post))
+    
+  }
+}
+
+```
+
+
+```{r}
+# Make subcomment variable
+data_frame_all$subcomment <- NA
+
+for (id_value in unique(data_frame_all$ID)) {
+  # Subset the dataframe for the current ID
+  subset_idx <- which(data_frame_all$ID == id_value)
+  subset_df <- data_frame_all[subset_idx, ]
+  
+  # If character in the column 'timeLabel' begins with 'Kommentar' or 'Comment', assign 0 to subcomment,
+  # If it begins with 'Svar' or 'Reply', assign 1
+  subset_df$subcomment <- ifelse(substr(subset_df$timeLabel, 1, 9) == "Kommentar" | substr(subset_df$timeLabel, 1, 7) == "Comment", 
+                                 0,
+                               ifelse(substr(subset_df$timeLabel, 1, 4) == "Svar" | substr(subset_df$timeLabel, 1, 5) == "Reply", 
+                                      1, 
+                                      NA))
+  
+  # Update the original dataframe with the modified subset
+  data_frame_all[subset_idx, ] <- subset_df
+}
+
+
+```
+
+
+#columns that might need to be (at least partly) manually coded 
+
+
+```{r}
+#making municupality column
+
+#make lists of abbrivations:
+from_copenhagen <- list("AnKe",
+                   "AnSm",
+                   "AsAl",
+                   "BeMø",
+                   "ChLu",
+                   "ChRø",
+                   "CiEg",
+                   "ClBu",
+                   "EmMo",
+                   "EmAn",
+                   "FiRu",
+                   "HaNe",
+                   "FrKr",
+                   "GoGu",
+                   "GyHe",
+                   "HaWa",
+                   "HeWa",
+                   "HeBo",
+                   "HeJø",
+                   "JaNæ",
+                   "JeTh",
+                   "JoJe",
+                   "KaBe",
+                   "KaMa",
+                   "KaAh",
+                   "KaHa",
+                   "KaKi",
+                   "KlGo",
+                   "KnHo",
+                   "LaWe",
+                   "LeFr",
+                   "LiBa",
+                   "LiEr",
+                   "LoTh",
+                   "MaVe",
+                   "MaKa",
+                   "TrJa",
+                   "MiNy",
+                   "MiSk",
+                   "MoMe",
+                   "OlOl",
+                   "PeBj",
+                   "RaSt",
+                   "SiDe",
+                   "SiWe",
+                   "SoSe",
+                   "StTo",
+                   "YiAk",
+                   "YiYi",
+                   "SoHæ",
+                   "LaRo",
+                   "KlMy",
+                   "BiHo",
+                   "JeLu",
+                   "NiPe") 
+
+from_aarhus <- list("ThMe",
+                    "NiBa",
+                    "AnWi",
+                    "ChBu",
+                    "ThHa",
+                    "HeAr",
+                    "AnPo",
+                    "ChBa",
+                    "GeBj",
+                    "JaSø",
+                    "JaCh",
+                    "LiGr",
+                    "SeKa",
+                    "MaYu",
+                    "PeSp",
+                    "StWi",
+                    "SoMu",
+                    "BuSi",
+                    "MeSk",
+                    "PoBa",
+                    "RaAz",
+                    "HuAr",
+                    "JeKj",
+                    "AaPe",
+                    "JaBu",
+                    "MeLi",
+                    "EvMe",
+                    "MaHj",
+                    "MeBj",
+                    "LoHi",
+                    "KaNi",
+                    "MaAg")
+
+
+
+# Loop through each row
+for (row in 1:nrow(data_frame_all)) {
+  # Check if name_abbreviation is in the list from_copenhagen
+  if (data_frame_all$name_abbreviation[row] %in% from_copenhagen) {
+    data_frame_all$municipality[row] <- "copenhagen"
+  }
+  
+  # Check if name_abbreviation is in the list from_aarhus
+  if (data_frame_all$name_abbreviation[row] %in% from_aarhus) {
+    data_frame_all$municipality[row] <- "aarhus"
+  }
+  
+  # If name_abbreviation is not in either list, assign NA
+  if (!(data_frame_all$name_abbreviation[row] %in% c(from_copenhagen, from_aarhus))) {
+    data_frame_all$municipality[row] <- NA
+  }
+}
+
+
+```
+
+
+
+
+```{r}
+for (row in 1:nrow(data_frame_all)) {
+  # Check conditions and assign values to the 'group' column
+  
+  if (data_frame_all$name_abbreviation[row] == 'BuSi' &
+             data_frame_all$week[row] %in% c(1, 5, 7, 8)) {
+    data_frame_all$group[row] <- 'treatment' }
+    
+    else if (data_frame_all$name_abbreviation[row] == 'MeSk' & 
+      data_frame_all$week[row] %in% c(2, 4, 5, 8)) {
+    data_frame_all$group[row] <- 'treatment' }
+  
+    else if (data_frame_all$name_abbreviation[row] == 'PoBa' & 
+      data_frame_all$week[row] %in% c(1, 4, 5, 7)) {
+    data_frame_all$group[row] <- 'treatment' }
+  
+    else if (data_frame_all$name_abbreviation[row] == 'SoHæ' & 
+      data_frame_all$week[row] %in% c(2, 3, 7, 8)) {
+    data_frame_all$group[row] <- 'treatment' }
+  
+    else if (data_frame_all$name_abbreviation[row] == 'LaRo' & 
+      data_frame_all$week[row] %in% c(1, 3, 6, 7)) {
+    data_frame_all$group[row] <- 'treatment' }
+  
+    else if (data_frame_all$name_abbreviation[row] == 'RaAz' & 
+      data_frame_all$week[row] %in% c(1, 2, 3, 6)) {
+    data_frame_all$group[row] <- 'treatment' }
+  
+    else if (data_frame_all$name_abbreviation[row] == 'KlMy' & 
+      data_frame_all$week[row] %in% c(1, 2, 5, 6)) {
+    data_frame_all$group[row] <- 'treatment' }
+  
+    else if (data_frame_all$name_abbreviation[row] == 'HuAr' & 
+      data_frame_all$week[row] %in% c(3, 5, 7, 8)) {
+    data_frame_all$group[row] <- 'treatment' }
+  
+    else if (data_frame_all$name_abbreviation[row] == 'JeKj' & 
+      data_frame_all$week[row] %in% c(1, 5, 6, 7)) {
+    data_frame_all$group[row] <- 'treatment' }
+  
+    else if (data_frame_all$name_abbreviation[row] == 'AaPe' & 
+      data_frame_all$week[row] %in% c(1, 3, 4, 7)) {
+    data_frame_all$group[row] <- 'treatment' }
+  
+    else if (data_frame_all$name_abbreviation[row] == 'JaBu' & 
+      data_frame_all$week[row] %in% c(5, 6, 7, 8)) {
+    data_frame_all$group[row] <- 'treatment' }
+  
+    else if (data_frame_all$name_abbreviation[row] == 'BiHo' & 
+      data_frame_all$week[row] %in% c(1, 2, 3, 4)) {
+    data_frame_all$group[row] <- 'treatment' }
+  
+    else if (data_frame_all$name_abbreviation[row] == 'MeLi' & 
+      data_frame_all$week[row] %in% c(1, 3, 4, 5)) {
+    data_frame_all$group[row] <- 'treatment' }
+  
+    else if (data_frame_all$name_abbreviation[row] == 'EvMe' & 
+      data_frame_all$week[row] %in% c(2, 3, 4, 7)) {
+    data_frame_all$group[row] <- 'treatment' }
+  
+    else if (data_frame_all$name_abbreviation[row] == 'JeLu' & 
+      data_frame_all$week[row] %in% c(1, 3, 7, 8)) {
+    data_frame_all$group[row] <- 'treatment' }
+  
+    else if (data_frame_all$name_abbreviation[row] == 'MaHj' & 
+      data_frame_all$week[row] %in% c(1, 2, 5, 8)) {
+    data_frame_all$group[row] <- 'treatment' }
+  
+    else if (data_frame_all$name_abbreviation[row] == 'MeBj' & 
+      data_frame_all$week[row] %in% c(2, 3, 4, 5)) {
+    data_frame_all$group[row] <- 'treatment' }
+  
+    else if (data_frame_all$name_abbreviation[row] == 'LoHi' & 
+      data_frame_all$week[row] %in% c(1, 2, 5, 6)) {
+    data_frame_all$group[row] <- 'treatment' }
+  
+    else if (data_frame_all$name_abbreviation[row] == 'NiPe' & 
+      data_frame_all$week[row] %in% c(1, 2, 3, 8)) {
+    data_frame_all$group[row] <- 'treatment' }
+  
+    else if (data_frame_all$name_abbreviation[row] == 'KaNi' & 
+      data_frame_all$week[row] %in% c(1, 3, 4, 5)) {
+    data_frame_all$group[row] <- 'treatment' }
+
+   else {
+    data_frame_all$group[row] <- 'control'}
+}
+```
+
+# Compliance
+
+```{r}
+# investigating:
+
+#count how many treatment post there should be: 203
+data_frame_treatment <- data_frame_all%>%
+  filter(main_post==1) %>%
+  filter(group=="treatment")
+print(data_frame_treatment$file_name) #print all the 203 filenames
+
+#how many politicians are present: is all 20 there?
+length(unique(data_frame_treatment$name_abbreviation)) #only 19 politicians, obs: no PoBa files that are treatment exist, so the number 19 is correct 
+
+#Searching for how many of the post actually have the comment
+data_frame_treatment_w_com <- data_frame_all%>%
+  filter(group=="treatment")
+#when searching 'SIG FRA, ANMELD, STØT OP' = 28 entries (consistent with the number i manually counted going through all files )
+
+#How many entries when searching in the whole dataset
+sum(grepl("SIG FRA, ANMELD, STØT OP", data_frame_all$text)) #51 entries
+
+
+#count number of treatments and control for the 51 entries 
+data_frame_search_key <- data_frame_all%>%
+  filter((grepl("SIG FRA, ANMELD, STØT OP", data_frame_all$text)))
+table(data_frame_search_key$group, useNA = 'always') #28 treatment, 23 control 
+
+
+```
+
+
+
+```{r}
+#make a compliance (intervention) column: code all the posts containing an intervention comment as treatment, regardless of whether the politician is in a treatment week
+
+#make compliance (intervention) column:
+
+data_frame_all$intervention <- NA
+
+for (id_value in unique(data_frame_all$ID)) {
+  # Subset the dataframe for the current ID
+  subset_idx <- which(data_frame_all$ID == id_value)
+  subset_df <- data_frame_all[subset_idx, ]
+  
+  # Check if any row in the subset contains the specified string
+  if (any(grepl("SIG FRA, ANMELD, STØT OP", subset_df$text))) {
+    # If yes, assign 'yes' to compliance column
+    subset_df$intervention <- 'yes'
+  } else {
+    # If no, assign 'no' to compliance column
+    subset_df$intervention <- 'no'
+  }
+  
+  # Update the original dataframe with the modified subset
+  data_frame_all[subset_idx, ] <- subset_df
+}
+
+
+```
+
+```{r}
+#Rearrange columns
+#32 columns 
+
+data_frame_all <- data_frame_all[, c(2, 3, 27, 15, 17, 16, 18, 28, 31, 32, 30, 5, 6, 12, 4, 7, 29, 8, 9, 11, 1, 10, 14, 13, 26, 19, 20, 21, 22, 23, 24, 25 )]
+```
+
+
+#Save final dataframe as csv
+
+```{r}
+
+write.csv(data_frame_all, "/Users/idahelenedencker/Desktop/STANDBY/Facebook Field Study with Local Politicians/all_files_final.csv", row.names=FALSE)
+```
+
+
+
+
+# Simple count analysis of the data
+
+```{r}
+library(tidyverse)
+library(dplyr)
+library(magrittr)
+```
+
+
+#Load in csv data
+```{r}
+data <- read_csv('/Users/idahelenedencker/Desktop/STANDBY/Facebook Field Study with Local Politicians/all_files_final.csv',show_col_types = FALSE)
+```
+
+
+#Simple initial analysis 
+```{r}
+#counts:
+
+
+#how many posts: 1601
+data$main_post <- as.numeric(data$main_post)
+sum(data$main_post)
+
+
+
+#how many different politicians: 77
+unique_counts <- table(data$name_abbreviation) # Count unique occurrences
+print(unique_counts) # Print the counts
+total_unique <- length(unique(data$name_abbreviation))
+print(total_unique)  # Print the total number of unique occurrences
+
+
+
+#how many politicians from aarhus: 27
+unique_aarhus <- data %>%
+  filter(municipality == "aarhus") %>%
+  pull(name_abbreviation) %>%
+  unique() %>%
+  length()
+print(unique_aarhus) # Print the result
+
+
+
+#how many politicians from copenhagen: 50
+unique_copenhagen <- data %>%
+  filter(municipality == "copenhagen") %>%
+  pull(name_abbreviation) %>%
+  unique() %>%
+  length()
+print(unique_copenhagen) # Print the result
+
+
+
+#how many politicians in the intervention: 11
+unique <- data %>%
+  filter(intervention == "yes") %>%
+  pull(name_abbreviation) %>%
+  unique() %>%
+  length()
+print(unique) # Print the result
+
+
+# what municipalities are the intervention politicians from
+unique_name_df <- data %>%
+  filter(intervention == "yes") %>%
+  distinct(name_abbreviation, .keep_all = TRUE)
+
+
+#what in the name_abbreviation of the intervention politicians 
+unique_name <- data %>%
+  filter(intervention == "yes") %>%
+  pull(name_abbreviation) %>%
+  unique() 
+print(unique_name) # Print the result
+
+```
+
+
+
