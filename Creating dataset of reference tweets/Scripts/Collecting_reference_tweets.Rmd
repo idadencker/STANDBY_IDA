@@ -1,0 +1,82 @@
+---
+title: "Collecting_reference_tweets"
+author: "Ida Dencker"
+date: "2024-07-10"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+#load needed packages
+pacman::p_load(tidyverse, academictwitteR)
+```
+
+```{r}
+?academictwitteR::hydrate_tweets()
+?academictwitteR::set_bearer()
+?academictwitteR::bind_tweets()
+```
+
+
+```{r}
+#have a .Renviron file in wd
+#write 'TWITTER_BEARER=your_bearer_token' in it
+
+set_bearer()
+
+#restart R
+```
+
+```{r}
+#load in csv
+sample <- read_csv('/Users/idahelenedencker/Desktop/STANDBY_Ida/Creating dataset of reference tweets/replies_sample.csv')
+
+#convert columns from numeric to charachter
+
+sample <- sample %>%
+  mutate(
+    conversation_id = as.character(conversation_id),
+    author_id = as.character(author_id),
+    referenced_tweets_id = as.character(referenced_tweets_id),
+    in_reply_to_user_id = as.character(in_reply_to_user_id),
+    id = as.character(id)
+  )
+
+
+
+#make id's as charachter vector 
+
+tweet_ids <- 
+```
+
+
+```{r}
+
+#collect tweets
+tweets <- hydrate_tweets(tweet_ids,
+                                 errors = TRUE, #set to true, to capture the errors also 
+                                 bind_tweets = FALSE, #when true, the tweets captured a bound into a data.frame
+                                 data_path = "data/hydrate_trial") #3 json files will be saved here
+```
+
+
+```{r}
+# bind the tweets so we are able to work with them 
+
+example_tweet_users <- academictwitteR::bind_tweets("data/hydrate_trial",
+                                                    user = TRUE) #If FALSE, the function binds JSON files into a data frame containing tweets, if TRUE,the function binds JSON files into a data frame containing user information
+
+
+```
+
+
+```{r}
+#make sure the twitter id columns are saved as character
+
+
+#save the df as csv
+```
+
