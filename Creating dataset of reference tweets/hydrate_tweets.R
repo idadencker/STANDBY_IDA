@@ -47,8 +47,7 @@ example_tweets <- hydrate_tweets(example_tweet_ids,
 # Just specify the path to the .json files and the function will do the rest
 # The data will be partly nested, but that's fine for most purposes
 # we can unnest what we need for later purposes
-example_tweet_users <- academictwitteR::bind_tweets("data/hydrate_trial",
-                                                    user = TRUE)
+
 
 
 example_tweets_tweets <- academictwitteR::bind_tweets("data/hydrate_trial",
