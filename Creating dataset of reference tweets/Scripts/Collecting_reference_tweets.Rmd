@@ -9,10 +9,13 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+
 ```{r}
 #load needed packages
 pacman::p_load(tidyverse, academictwitteR)
 ```
+
+
 
 ```{r}
 ?academictwitteR::hydrate_tweets()
@@ -22,39 +25,58 @@ pacman::p_load(tidyverse, academictwitteR)
 
 
 ```{r}
-#have a .Renviron file in wd
-#write 'TWITTER_BEARER=your_bearer_token' in it
+#have a .Renviron file in wd (no need to?)
 
-set_bearer()
+set_bearer() # run and a .Renviron file will opne, type 'TWITTER_BEARER=your_bearer_token'
 
 #restart R
-```
 
-```{r}
-#load in csv
-sample <- read_csv('/Users/idahelenedencker/Desktop/STANDBY_Ida/Creating dataset of reference tweets/replies_sample.csv')
-
-#convert columns from numeric to charachter
-
-sample <- sample %>%
-  mutate(
-    conversation_id = as.character(conversation_id),
-    author_id = as.character(author_id),
-    referenced_tweets_id = as.character(referenced_tweets_id),
-    in_reply_to_user_id = as.character(in_reply_to_user_id),
-    id = as.character(id)
-  )
-
-
-
-#make id's as charachter vector 
-
-tweet_ids <- 
+#check that is has worked with
+get_bearer() #should print the token
 ```
 
 
+Overview over id columns:
+
+1) id = Each object within Twitter - a Tweet, Direct Message, User, List, and so on - has a unique ID.
+2) conversation_id = the Post ID of the original Post that started the conversation. (if the post is not a Retweet, Quoted Tweet, or reply the conversation_id will be the same as id)
+3) author_id = returns user object representing the Post's author
+4) referenced_tweets_id = returns post object that this Post is referencing (either as a Retweet, Quoted Tweet, or reply)
+5) in_reply_to_user_id = returns a user object representing the Post author this requested Post is a reply of
+
+
+Read more here: 
+https://developer.x.com/en/docs/twitter-ids (ID)
+https://developer.x.com/en/docs/twitter-api/expansions (in_reply_to_user_id, author_id, referenced_tweets_id)
+https://developer.x.com/en/docs/twitter-api/conversation-id (conversation_id)
+
 ```{r}
 
+# Specify the columns to be read in as character
+col_types <- cols(
+  conversation_id = col_character(),
+  author_id = col_character(),
+  referenced_tweets_id = col_character(),
+  in_reply_to_user_id = col_character(),
+  id = col_character(),
+  .default = col_guess() # Guess the type for other columns
+)
+
+# Read the CSV with specified column types
+sample <- read_csv('/Users/idahelenedencker/Desktop/STANDBY_Ida/Creating dataset of reference tweets/replies_sample.csv', col_types = col_types)
+
+```
+
+
+```{r}
+#make id's as list
+tweet_ids <- list(sample$referenced_tweets_id)
+
+# referenced_tweets_id = what id the row is a reply or retweet of
+```
+
+
+```{r}
 #collect tweets
 tweets <- hydrate_tweets(tweet_ids,
                                  errors = TRUE, #set to true, to capture the errors also 
@@ -75,7 +97,6 @@ example_tweet_users <- academictwitteR::bind_tweets("data/hydrate_trial",
 
 ```{r}
 #make sure the twitter id columns are saved as character
-
 
 #save the df as csv
 ```
