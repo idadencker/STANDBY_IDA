@@ -525,6 +525,6 @@ first_200_pairs <- ordered_df %>%
   filter(pair_num <= 200)
 
 # Save
-write.csv(first_200_pairs, "/Users/idahelenedencker/Desktop/STANDBY_Ida/Creating dataset of reference tweets/200_twitter_pairs.csv", row.names=FALSE)
+write.csv(first_200_pairs, "/Users/idahelenedencker/Desktop/STANDBY_Ida/Creating dataset of reference tweets/200_twitter_pairs.csv", row.names=FALSE) 
 
 ```
