@@ -4,18 +4,17 @@ Link to my notion page 'STANDBY' containing notes on e.g. the the facebook exper
 To-Do:
 
 1. Task: **Creating a dataset of reference tweets to prepare for hand coding and evaluate different classifiers on task** 
-    - Pull the reference tweets for all the 10.000 replies using the twitter API (after 23/7)
-        - use ‘referenced_tweets_id’
-        - Look into documentation for this: https://developer.x.com/en/docs/twitter-api/data-dictionary/introduction
-            - academictwitteR (see email)
-    - Create a subset dataset of 200 paired tweets ready for hand-coding
-        - will be coded in 3 labels
     - Look into danish (and english/multilingual) classifiers relevant for pro-social
         - [danish-foundation-models/munin-7b-alpha](https://huggingface.co/danish-foundation-models/munin-7b-alpha)
         - [perspectiveapi.com](https://www.perspectiveapi.com/)
+        - Ælectra models
         - Others?
+        - https://github.com/fnielsen/awesome-danish
+        - https://kennethenevoldsen.github.io/scandinavian-embedding-benchmark/
+    - Test Zero-shot classification
     - Classifier competition: apply classifiers to the tweet/reply dataset 😎
         - compare the classifiers against our handcoded labels, and generally how they perform
+        - when labeled: Multilingual-E5-large-instruct to classify tweets into containing prosocial/counterspeech or not
     
 2. Task: Redoing and fine-tuning our existing english counter speech classifier 
     - Check out repo - understand the contents
