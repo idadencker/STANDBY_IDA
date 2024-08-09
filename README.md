@@ -7,8 +7,8 @@ To-Do:
 1. Task: **Creating a dataset of reference tweets to prepare for hand coding and evaluate different classifiers on task** 
     - ~~Look into danish (and english/multilingual) classifiers relevant for pro-social/counterspeech~~
     - ~~Classifier competition: apply existing classifiers to the tweet/reply dataset~~
-    - Finetuning LLM on counterspeech (CONAN) data
-        - Maybe handcode a small dataset myself and use that
+    - ~~Finetuning LLM on counterspeech (CONAN) data~~
+    - Maybe handcode a small dataset myself and finetune a hugging face counter speech classifier
     - Apply perspective API
     - compare the classifiers against our handcoded labels, and generally how they perform
     
