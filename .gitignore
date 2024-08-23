@@ -4,3 +4,6 @@ Creating dataset of reference tweets/Twitter_API_Credentials_RA-kopi.txt
 Creating dataset of reference tweets/Scripts/finetuning
 Creating dataset of reference tweets/apikey.txt
 Creating dataset of reference tweets/Scripts/apienv
+Creating dataset of reference tweets/output/model_without_reference/checkpoints/model_epoch_1.pt
+
+
