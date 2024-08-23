@@ -4,18 +4,24 @@ Link to my notion page 'STANDBY' containing notes on e.g. the the facebook exper
 
 To-Do:
 
-1. Task: **Creating a dataset of reference tweets to prepare for hand coding and evaluate different classifiers on task** 
-    - ~~Look into danish (and english/multilingual) classifiers relevant for pro-social/counterspeech~~
-    - ~~Classifier competition: apply existing classifiers to the tweet/reply dataset~~
-    - ~~Finetuning LLM on counterspeech (CONAN) data~~
-    - Maybe handcode a small dataset myself and finetune a hugging face counter speech classifier
-    - Apply perspective API
-    - compare the classifiers against our handcoded labels, and generally how they perform
-    
-2. Task: Redoing and fine-tuning our existing english counter speech classifier 
+1. Task: Redoing and fine-tuning our existing english counterspeech classifier 
+    - Handcode danish dataset (wait for Simons instructions)
     - Check out repo - understand the contents
         - https://github.com/centre-for-humanities-computing/Counterspeech/tree/main/src
+        - 3 models:
+            - 01_Model without reference
+                - Base model
+                - Takes just a reference text (with no context of previous replies) and makes the predictions
+            - 02_Model with reference
+                - Builds on the base model
+                - the model has more information to base its prediction upon as it can see patterns in the reference text and how this may influence the reply tweet text.
+            - 03_Model with reference and text
+                - Builds upon the second model
+                - the model has more information to base its prediction upon as it can see patterns in the reference text AND THE REFERENCE LABELS and how this may influence the reply tweet text. (e.g., a hateful reference tweet is typically responded to with an 'Agree' tone in the reply or vice versa)
     - Use multilingual model like XLM-RoBERTA instead of English bert-base-uncased
-    - Retrain the model (what server?)
-    - Finetune on labeled danish examples (maybe 300 is enough?)
-    - Finetune on labeled english examples (how many?)
+        - Retrain the model (what server?)
+    - Finetune the new model on labeled danish examples (maybe 300 is enough?)
+        - OR should i train the whole model on the original data + extended with a new small sample of danish data (since we have to retrain the model anyways)
+    
+2. Task: Compare classifiers 
+    - Compare the retrained classifier to the 2 hugging face ones (on the English data)
