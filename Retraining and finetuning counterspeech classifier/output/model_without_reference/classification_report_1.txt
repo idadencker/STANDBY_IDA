@@ -7,13 +7,13 @@
                 Not Hateful       0.77      1.00      0.87       166
      Unclassifiable Hateful       0.00      0.00      0.00        16
                Constructive       0.00      0.00      0.00        37
-           Not Constructive       0.76      1.00      0.87       165
+           Not Constructive       0.82      0.99      0.90       165
 Unclassifiable Constructive       0.00      0.00      0.00        14
                       Agree       0.00      0.00      0.00        83
                    Disagree       1.00      0.29      0.44        70
                     Unclear       0.00      0.00      0.00        63
 
-                  micro avg       0.71      0.55      0.62       864
-                  macro avg       0.26      0.27      0.24       864
-               weighted avg       0.46      0.55      0.47       864
-                samples avg       0.71      0.55      0.62       864
+                  micro avg       0.73      0.55      0.63       864
+                  macro avg       0.26      0.27      0.25       864
+               weighted avg       0.47      0.55      0.48       864
+                samples avg       0.73      0.55      0.63       864
