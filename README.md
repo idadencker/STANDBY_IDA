@@ -11,6 +11,9 @@ To-Do:
     - Test a saved model on some data: how does it works?
     - Finetune the new model(s) on labeled danish examples (maybe 300 is enough?)
         - OR should i train the whole model on the original data + extended with a new small sample of danish data (since we have to retrain the model anyways)
-    
-2. Task: Compare classifiers 
-    - Compare the retrained classifier to the 2 hugging face ones (on the English data)
+
+2. Look into and test hugging face Debate model
+- https://huggingface.co/mlburnham/Political_DEBATE_large_v1.0
+
+3. Task: Compare classifiers 
+- Compare the retrained classifier to the 2 hugging face ones (on the English data)
